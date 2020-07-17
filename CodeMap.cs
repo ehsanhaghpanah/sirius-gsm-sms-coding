@@ -1,0 +1,139 @@
+/**
+ * Copyright (C) Ehsan Haghpanah, 2010.
+ * All rights reserved.
+ * Ehsan Haghpanah, (github.com/ehsanhaghpanah)
+ */
+
+using System;
+
+namespace sirius.GSM.Coding
+{
+	public sealed class CodeMap
+	{
+		private static readonly int[] _uniCodes = new[] { 
+			0x0622, 0x0627, 0x0628, 0x067E, 0x062A, 0x062B, 0x062C, 0x0686, 
+			0x062D, 0x062E, 0x062F, 0x0630, 0x0631, 0x0632, 0x0698, 0x0633, 
+			0x0634, 0x0635, 0x0636, 0x0637, 0x0638, 0x0639, 0x063A, 0x0641, 
+			0x0642, 0x06A9, 0x06AF, 0x0644, 0x0645, 0x0646, 0x0648, 0x0647, 
+			0x06CC, 0x0626, 0x0624, 0x0621, 0x06F0, 0x06F1, 0x06F2, 0x06F3, 
+			0x06F4, 0x06F5, 0x06F6, 0x06F7, 0x06F8, 0x06F9, 0x0020, 0x002E, 
+			0x0021, 0x061F, 0x003A, 0x060C, 0x061B, 0x200E, 0x200F, 0x0028, 
+			0x0029, 0x002A, 0x002B, 0x002D, 0x003D, 0x0623, 0x0625, 0x0022 
+		};
+
+		/// <summary>
+		/// 6-bit customized (Strophic Character Set) Codes
+		/// </summary>
+		private static readonly int[] _sixCodes = new[] { 
+			0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 
+			0x0008, 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x000E, 0x000F, 
+			0x0010, 0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017, 
+			0x0018, 0x0019, 0x001A, 0x001B, 0x001C, 0x001D, 0x001E, 0x001F, 
+			0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027, 
+			0x0028, 0x0029, 0x002A, 0x002B, 0x002C, 0x002D, 0x002E, 0x002F, 
+			0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037, 
+			0x0038, 0x0039, 0x003A, 0x003B, 0x003C, 0x003D, 0x003E, 0x003F 
+		};
+
+		/// <summary>
+		/// 
+		/// </summary>
+		private static readonly int[] _ascCodes = new [] { 
+			0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047, 0x0048, 
+			0x0049, 0x004A, 0x004B, 0x004C, 0x004D, 0x004E, 0x004F, 0x0050, 
+			0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057, 0x0058, 
+			0x0059, 0x005A, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 
+			0x0067, 0x0068, 0x0069, 0x006A, 0x006B, 0x006C, 0x006D, 0x006E, 
+			0x006F, 0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 
+			0x0077, 0x0078, 0x0079, 0x007A, 0x0030, 0x0031, 0x0032, 0x0033, 
+			0x0034, 0x0035, 0x0036, 0x0037, 0x0038, 0x0039, 0x002E, 0x0020 
+		};
+
+		private static bool IsExist(char c)
+		{
+			for (int i = 0; i < _uniCodes.Length; i++)
+				if (c == _uniCodes[i])
+					return (true);
+
+			return (false);
+		}
+
+		private static string Normalize(string text)
+		{
+			//
+			// latin digits to persia digits conversion
+			//
+			{
+				text = text.Replace((char)0x0030, (char)0x06F0);
+				text = text.Replace((char)0x0031, (char)0x06F1);
+				text = text.Replace((char)0x0032, (char)0x06F2);
+				text = text.Replace((char)0x0033, (char)0x06F3);
+				text = text.Replace((char)0x0034, (char)0x06F4);
+				text = text.Replace((char)0x0035, (char)0x06F5);
+				text = text.Replace((char)0x0036, (char)0x06F6);
+				text = text.Replace((char)0x0037, (char)0x06F7);
+				text = text.Replace((char)0x0038, (char)0x06F8);
+				text = text.Replace((char)0x0039, (char)0x06F9);
+			}
+			//
+			// arabic yeh-letter to persian yeh-letter conversion
+			//
+			{
+				text = text.Replace((char)0x064A, (char)0x06CC);
+			}
+
+			char[] chars = text.ToCharArray();
+			for (int i = 0; i < chars.Length; i++)
+				if (!IsExist(chars[i]))
+					chars[i] = (char)0x061F;
+
+			string t = string.Empty;
+			for (int i = 0; i < chars.Length; i++)
+				t += chars[i].ToString();
+
+			return (t);
+		}
+
+		private static byte UniToSix(char c)
+		{
+			for (int i = 0; i < 64; i++)
+				if (c == _uniCodes[i])
+					return ((byte)_sixCodes[i]);
+
+			throw new ArgumentOutOfRangeException("UniToSix : " + ((int)c).ToString());
+		}
+
+		private static char SixToUni(byte b)
+		{
+			for (int i = 0; i < 64; i++)
+				if (b == _sixCodes[i])
+					return ((char)_uniCodes[i]);
+
+			throw new ArgumentOutOfRangeException();
+		}
+
+		public static byte[] Encode(string text)
+		{
+			text = Normalize(text);
+
+			byte[] data = new byte[text.Length];
+			char[] chrs = text.ToCharArray();
+
+			for (int i = 0; i < text.Length; i++)
+				data[i] = UniToSix(chrs[i]);
+
+			return (BinaryOp.Encode(data, DataCoding.Coding6Bit));
+		}
+
+		public static string Decode(byte[] data)
+		{
+			string t = string.Empty;
+			byte[] bytes = BinaryOp.Decode(data, DataCoding.Coding6Bit);
+
+			for (int i = 0; i < bytes.Length; i++)
+				t += SixToUni(bytes[i]).ToString();
+
+			return (t);
+		}
+	}
+}
